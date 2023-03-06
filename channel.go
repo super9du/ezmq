@@ -20,7 +20,7 @@ import (
 	"errors"
 	"ezmq/logger"
 	"fmt"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // ReceiveOpts 消息接收选项。
@@ -106,7 +106,6 @@ func (bld *ReceiveOptsBuilder) Build() *ReceiveOpts {
 // messageFactory 如果未设置该选项，则默认使用 MessagePlainTransient 生产消息。
 //
 // retryable 如果不设置该选项，表示不启用消息重发功能。
-//
 type SendOpts struct {
 	mandatory      bool
 	immediate      bool
@@ -238,7 +237,6 @@ func (c *Channel) Send(exchange string, routingKey string, body []byte) error {
 //
 // 参数 opts 即发送消息需要配置的选项。如果 opts 为 nil，则表示使用默认配置。可以通过配置 SendOpts.retryable
 // 启用消息重发的能力。请注意，由于消息重发使用的是同步的方式处理 ack，因此启用消息重发会极大降低 QPS。
-//
 func (c *Channel) SendOpts(exchange string, routingKey string, body []byte, opts *SendOpts) error {
 	if opts == nil {
 		opts = DefaultSendOpts()

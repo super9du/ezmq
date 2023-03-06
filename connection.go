@@ -19,7 +19,7 @@ package ezmq
 import (
 	"errors"
 	"ezmq/logger"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"net"
 	"os"
 	"sync"
@@ -151,7 +151,6 @@ func (c *Connection) reconnect(err error) bool {
 // 函数会先判断是否已连接，否则将尝试重连（使用您之前设置的 Retryable 配置）。
 // 在获得连接的情况下，会立刻创建 Channel。但可能会存在极少数情况下，因为网络不稳定等因素，
 // Channel 创建之前，连接又断开，则会因为网络原因产生错误。
-//
 func (c *Connection) Channel() (*Channel, error) {
 	var ch, err = c.channel()
 	if err != nil {
@@ -186,8 +185,8 @@ func (c *Connection) RetryChannel(retryable Retryable) (ch *Channel, err error) 
 // 每次重连后，重连监听器会自动使用 exec 执行一遍所有的 Operation 函数。
 //
 // 注意：
-//  - 函数会在 Operation 执行完后主动关闭 Channel，因此我们无需在 Operation 中手动关闭 Channel。
-//  - 由于使用了 go routine，该方法可能会在 Operation 操作执行完毕前返回。
+//   - 函数会在 Operation 执行完后主动关闭 Channel，因此我们无需在 Operation 中手动关闭 Channel。
+//   - 由于使用了 go routine，该方法可能会在 Operation 操作执行完毕前返回。
 func (c *Connection) RegisterAndExec(opt Operation) {
 	if opt == nil {
 		panic("Operation must not be nil")

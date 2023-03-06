@@ -17,7 +17,7 @@
 package ezmq
 
 import (
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type Consumer struct {
@@ -65,7 +65,6 @@ type Producer struct {
 //
 // 参数 opts 即发送消息需要配置的选项。如果 opts 为 nil，则表示使用默认配置。可以通过配置 SendOpts.retryable
 // 启用消息重发的能力。请注意，由于消息重发使用的是同步的方式处理 ack，因此启用消息重发会极大降低 QPS。
-//
 func (p *Producer) Send(exchange string, routingKey string, body []byte, opts *SendOpts) error {
 	ch, err := p.c.Channel()
 	if err != nil {

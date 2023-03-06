@@ -18,7 +18,7 @@ package ezmq
 
 import (
 	"fmt"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"strconv"
 	"testing"
