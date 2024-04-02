@@ -1,26 +1,26 @@
 # ezmq: An Easy-to-Use AMQP Client
 
-An amqp(RabbitMQ) client that supports reconnection and msg resending. 
+An amqp(RabbitMQ) client that supports reconnection and msg resending.
 
-Chinese Doc：🇨🇳[中文文档](README_zh.md)
+Chinese Doc：[中文文档](README_zh.md)
 
 Introduction
 ---
-* 💥 Extends the [rabbitmq/amqp091-go](https://github.com/rabbitmq/amqp091-go) package with zero dependencies beyond it
-* 💪 Implements network disconnection reconnection
-* 💎 Implements retry on message send failure
-* 🎈 User-friendly
+* 💥 Built on top of [rabbitmq/amqp091-go](https://github.com/rabbitmq/amqp091-go) package with zero dependencies
+* 💪 Supports automatic reconnection after network disconnection
+* 💎 Supports automatic message retry in case of send failure
+* 🎈 Easy to use
 
-Brief on Implementation
+Implementation Overview
 ---
-Since the sending and receiving of AMQP messages depend on the creation of Channels, which in turn depends on the connection of Connections, a network disconnection would drop the Connection. However, Channels are not aware of their creator. Typically, there are two solutions for reconnecting after a disconnection:
+When sending and receiving AMQP messages, it relies on the creation of channels, and the creation of channels depends on the connection. If the network connection is disconnected, the connection will be lost. However, the channel does not know who created it. Therefore, there are usually two ways to handle reconnection:
 
-* One is for Channels to reacquire a Connection after a Connection drops. This approach is the simplest to implement. However, if there are a vast number of Channels, each would create and connect to a Connection. In poor network conditions, an enormous number of Channels might attempt to reconnect repeatedly, leading to a surge in server resource consumption and potentially exacerbating network congestion. Yet, we only need one Connection to determine if the network is connectable or connected.
-* Another approach is for the Connection itself to reconnect after a disconnection. Channels do not perform any operations if the reconnection fails. If the reconnection succeeds, it automatically reruns registered operations. Using disconnection reconnection to send messages continues to send the necessary messages after the Connection successfully reconnects. This method is more complex but avoids the issues of server resource consumption and network congestion.
+* One way is for the channel to obtain a new connection after the connection is lost. This is the simplest implementation approach. However, if there are a large number of channels, each channel will create a connection and connect to it. When the network condition is poor, there may be a large number of channels repeatedly attempting reconnection, which will greatly increase the server resource consumption and even worsen network congestion. In fact, we only need one connection to determine whether the network can be connected and is connected.
+* Another way is for the connection to reconnect itself after a disconnection. If the reconnection is not successful, the channel does nothing. If the reconnection is successful, the registered operations are automatically executed again. If sending messages during reconnection, the messages will be sent after the connection is successfully reestablished. This approach is more complex to implement, but it avoids the problems of server resource consumption and network congestion.
 
 ezmq adopts the latter approach.
 
-Quick Start
+Getting Started
 ---
 
 ### Sending Messages
@@ -35,14 +35,14 @@ import (
 )
 
 func main() {
-  // Create and connect to a Connection
+  // Create a connection and connect to the server
   conn, err := ezmq.Dial("amqp://guest:guest@localhost:5672/", ezmq.DefaultTimesRetry())
   if err != nil {
     log.Fatal(err)
   }
   defer conn.Close()
 
-  // Create a Producer
+  // Create a producer
   producer := conn.Producer()
   // Send a message
   err = producer.Send("amq.direct", "key.direct", []byte("producer.Send() | "+time.Now().Format("2006-01-02 15:04:05")),
@@ -66,19 +66,19 @@ import (
 )
 
 func main() {
-  // Create and connect to a Connection
+  // Create a connection and connect to the server
   conn, err := ezmq.Dial("amqp://guest:guest@localhost:5672/", ezmq.DefaultTimesRetry())
   if err != nil {
     log.Fatal(err)
   }
   defer conn.Close()
 
-  // Create a Consumer
+  // Create a consumer
   consumer := conn.Consumer()
-  // Receive a message
+  // Receive messages
   consumer.Receive(
     "queue.direct",                                         // Queue name
-    ezmq.NewReceiveOptsBuilder().SetAutoAck(false).Build(), // Receiving options
+    ezmq.NewReceiveOptsBuilder().SetAutoAck(false).Build(), // Receive options
     &ezmq.AbsReceiveListener{
       ConsumerMethod: func(d *amqp.Delivery) (brk bool) { // Consumer method
         log.Println("queue.direct ", d.DeliveryTag, " ", string(d.Body))
@@ -93,17 +93,17 @@ func main() {
 
 ```
 
-> Pro Tip:
+> A suggestion:
 >
-> Unless there's a specific need, it's advisable to create only one Connection globally, with all message sending and receiving handled by the Producer and Consumer.
+> Unless there are specific requirements, we only need to create one connection globally and use the producer and consumer to handle all message sending and receiving.
 
-To Be Implemented
+To be implemented
 ---
 
 * Asynchronous message sending and confirmation
 * Handling of duplicate consumption
-* Message resend when a queue is not found under network partition conditions (ReturnListener)
-* Consumer ack retry
+* Message retransmission in case of not finding the queue during network partition (ReturnListener)
+* Consumer acknowledgement retry
 
 License
 ---
