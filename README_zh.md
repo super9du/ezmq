@@ -1,5 +1,7 @@
 # ezmq：一个易于使用的AMQP客户端
 
+
+
 介绍
 ---
 * 💥扩展了 [rabbitmq/amqp091-go](https://github.com/rabbitmq/amqp091-go) 包，除此之外零依赖

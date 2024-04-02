@@ -1,6 +1,8 @@
 # ezmq: An Easy-to-Use AMQP Client
 
-[中文文档](README_zh.md)
+An amqp(RabbitMQ) client that supports reconnection and msg resending. 
+
+Chinese Doc：🇨🇳[中文文档](README_zh.md)
 
 Introduction
 ---
