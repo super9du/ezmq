@@ -16,10 +16,6 @@
 
 package ezmq
 
-import (
-	amqp "github.com/rabbitmq/amqp091-go"
-)
-
 type Consumer struct {
 	c *Connection
 }
@@ -39,21 +35,22 @@ func (c *Consumer) Receive(queue string, opts *ReceiveOpts, lis ReceiveListener)
 	})
 }
 
-// When autoAck is true, the server will automatically acknowledge this message so you don't have to.
-// But if you are unable to fully process this message before the channel or connection is closed,
-// the message will not get requeued
-func (c *Consumer) Get(queue string, autoAck bool) (*amqp.Delivery, bool, error) {
-	ch, err := c.c.Channel()
-	if err != nil {
-		return nil, false, err
-	}
-	defer ch.Close()
-	msg, ok, err := ch.Get(queue, autoAck)
-	if err != nil {
-		return nil, false, err
-	}
-	return &msg, ok, err
-}
+// TO FIX: 当前不能直接使用 consumer.Get()，会导致关闭错误。
+//// When autoAck is true, the server will automatically acknowledge this message so you don't have to.
+//// But if you are unable to fully process this message before the channel or connection is closed,
+//// the message will not get requeued
+//func (c *Consumer) Get(queue string, autoAck bool) (*amqp.Delivery, bool, error) {
+//	ch, err := c.c.Channel()
+//	if err != nil {
+//		return nil, false, err
+//	}
+//	defer ch.Close()
+//	msg, ok, err := ch.Get(queue, autoAck)
+//	if err != nil {
+//		return nil, false, err
+//	}
+//	return &msg, ok, err
+//}
 
 type Producer struct {
 	c *Connection

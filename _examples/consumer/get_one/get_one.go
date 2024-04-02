@@ -19,6 +19,7 @@ package main
 import (
 	"ezmq"
 	"log"
+	"time"
 )
 
 func main() {
@@ -28,16 +29,42 @@ func main() {
 		}
 	}
 
+	var err error
+
 	conn, err := ezmq.Dial("amqp://guest:guest@localhost:5672/", nil)
 	onErr(err)
 	defer conn.Close()
 
-	// 如果想要消费一次后立刻退出，可以使用如下方式
-	delivery, ok, err := conn.Consumer().Get("queue.direct", false)
+	ch, err := conn.Channel()
 	onErr(err)
-	if ok {
-		log.Println("queue.direct-get ", delivery.DeliveryTag, " ", string(delivery.Body))
-		err := delivery.Ack(false)
-		onErr(err)
-	}
+	defer ch.Close()
+
+	// 设置为 Plain Persistent （无格式/持久化）的形式发送消息
+	err = ch.SendOpts(
+		"amq.direct", "key.direct", []byte("Send() | "+time.Now().Format("2006-01-02 15:04:05")),
+		ezmq.NewSendOptsBuilder().SetMessageFactory(ezmq.MessagePlainPersistent).Build(),
+	)
+	onErr(err)
 }
+
+// TO FIX: 当前不能直接使用 consumer.Get()，会导致关闭错误。
+//func main() {
+//	onErr := func(err error) {
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//	}
+//
+//	conn, err := ezmq.Dial("amqp://guest:guest@localhost:5672/", nil)
+//	onErr(err)
+//	defer conn.Close()
+//
+//	// 如果想要消费一次后立刻退出，可以使用如下方式
+//	delivery, ok, err := conn.Consumer().Get("queue.direct", false)
+//	onErr(err)
+//	if ok {
+//		log.Println("queue.direct-get ", delivery.DeliveryTag, " ", string(delivery.Body))
+//		err := delivery.Ack(false) // Exception (504) Reason: "channel/connection is not open"
+//		onErr(err)
+//	}
+//}
