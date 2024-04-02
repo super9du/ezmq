@@ -19,10 +19,8 @@ package main
 import (
 	"ezmq"
 	"log"
-	"time"
 )
 
-// 断线重连，消息确认，失败重发
 func main() {
 	onErr := func(err error) {
 		if err != nil {
@@ -30,20 +28,16 @@ func main() {
 		}
 	}
 
-	conn, err := ezmq.Dial("amqp://guest:guest@localhost:5672/", ezmq.DefaultTimesRetry())
+	conn, err := ezmq.Dial("amqp://guest:guest@localhost:5672/", nil)
 	onErr(err)
 	defer conn.Close()
 
-	ch, _ := conn.Channel()
-	defer ch.Close()
-	err = ch.SendOpts(
-		"amq.direct",
-		"key.direct",
-		[]byte("reSendSync() | "+time.Now().Format("2006-01-02 15:04:05")),
-		ezmq.NewSendOptsBuilder().
-			SetRetryable(ezmq.DefaultTimesRetry()).
-			SetMessageFactory(ezmq.MessageJsonPersistent).
-			Build(),
-	)
+	// 如果想要消费一次后立刻退出，可以使用如下方式
+	delivery, ok, err := conn.Consumer().Get("queue.direct", false)
 	onErr(err)
+	if ok {
+		log.Println("queue.direct-get ", delivery.DeliveryTag, " ", string(delivery.Body))
+		err := delivery.Ack(false)
+		onErr(err)
+	}
 }
