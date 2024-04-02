@@ -18,7 +18,6 @@ package ezmq
 
 import (
 	"context"
-	"ezmq/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"math/rand"
 	"strconv"
@@ -213,7 +212,7 @@ func (r *CtxRetry) retry(retryOperation func() (brk bool)) {
 		}
 		time.Sleep(r.Interval)
 	}
-	logger.Debug("Gave up retrying or CtxRetry context done!")
+	debug("Gave up retrying or CtxRetry context done!")
 }
 
 // 见 Retryable.hasGaveUp()

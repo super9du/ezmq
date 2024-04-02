@@ -18,7 +18,6 @@ package ezmq
 
 import (
 	"errors"
-	"ezmq/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"net"
 	"os"
@@ -115,7 +114,7 @@ func (c *Connection) doReDial() error {
 		if err == nil || !isConnectedErr(err) {
 			return true
 		}
-		logger.Debug("try to re-dial...")
+		debug("try to re-dial...")
 		return false
 	})
 	return err
@@ -127,10 +126,10 @@ func (c *Connection) reconnect(err error) bool {
 		return true
 	}
 	for true {
-		logger.Debug("try to reconnect...")
+		debug("try to reconnect...")
 
 		if !isAmqpConnectedErr(err) {
-			logger.Info("reconnect failed: ", err)
+			info("reconnect failed: ", err)
 			return false
 		}
 
@@ -139,7 +138,7 @@ func (c *Connection) reconnect(err error) bool {
 
 		err = c.reDial()
 		if err == nil {
-			logger.Debug("reconnected!")
+			debug("reconnected!")
 			break
 		}
 	}
@@ -231,7 +230,7 @@ func (c *Connection) exec() {
 		fn := opt
 		err := c.execOperation(key, fn)
 		if err != nil {
-			logger.Warn(err)
+			warn(err)
 			return
 		}
 	}
@@ -311,7 +310,7 @@ func isTransportNetError(err error) bool {
 	}
 
 	if netErr.Timeout() {
-		logger.Debug(err)
+		debug(err)
 		return true
 	}
 
@@ -322,16 +321,16 @@ func isTransportNetError(err error) bool {
 
 	switch t := opErr.Err.(type) {
 	case *net.DNSError:
-		logger.Debugf("net.DNSError:%+v", t)
+		debugf("net.DNSError:%+v", t)
 		return true
 	case *os.SyscallError:
 		if errno, ok := t.Err.(syscall.Errno); ok {
 			switch errno {
 			case syscall.ECONNREFUSED:
-				logger.Debug("connect refused")
+				debug("connect refused")
 				return true
 			case syscall.ETIMEDOUT:
-				logger.Debug("timeout")
+				debug("timeout")
 				return true
 			}
 		}

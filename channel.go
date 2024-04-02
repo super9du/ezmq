@@ -18,7 +18,6 @@ package ezmq
 
 import (
 	"errors"
-	"ezmq/logger"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -304,13 +303,13 @@ func (c *Channel) resetChannelIfNeeded(err error) bool {
 	}
 
 	if ch, e = conn.channel(); e != nil {
-		logger.Debug(e)
+		debug(e)
 		return false
 	}
 
 	c.resetChannel(ch)
 	if e = c.enableConfirm(); e != nil {
-		logger.Debug(e)
+		debug(e)
 		return false
 	}
 	return true
@@ -335,7 +334,7 @@ func (c *Channel) enableConfirm() error {
 func (c *Channel) resetChannel(ch *amqp.Channel) {
 	err := c.Channel.Close()
 	if err != nil {
-		logger.Debug(err)
+		debug(err)
 	}
 	c.Channel = ch
 	// 重置 Confirm Mode

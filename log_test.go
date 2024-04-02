@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; If not, see <https://www.gnu.org/licenses/>.
 
-package logger
+package ezmq
 
 import (
 	"testing"
 )
 
 func TestSetGlobalLevel(t *testing.T) {
-	SetLevel("warn")
-	Info("test")
-	Warn("test")
+	info("test")
+	warn("test")
+	erro("ERR")
 }

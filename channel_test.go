@@ -17,7 +17,6 @@
 package ezmq
 
 import (
-	"ezmq/logger"
 	"fmt"
 	"testing"
 	"time"
@@ -170,7 +169,7 @@ func TestChannel_Receive_With_Context(t *testing.T) {
 	time.Sleep(time.Second * 30)
 	cancel()
 	time.Sleep(time.Second * 3)
-	logger.Info("finish!")
+	info("finish!")
 }
 
 func TestChannel_Receive_limit_time(t *testing.T) {

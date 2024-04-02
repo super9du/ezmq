@@ -18,7 +18,6 @@ package ezmq
 
 import (
 	"context"
-	"ezmq/logger"
 	"log"
 )
 
@@ -26,7 +25,6 @@ var defaultURL = "amqp://guest:guest@localhost:5672/"
 
 func init() {
 	log.Println("init test...")
-	logger.SetLevel("debug")
 
 	c, err := Dial(defaultURL, DefaultTimesRetry())
 	onErr(err)
