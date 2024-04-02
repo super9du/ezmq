@@ -70,7 +70,7 @@ var filePrefixFunc = func() string {
 }()
 
 func fileLine() string {
-	pc, absPath, line, _ := runtime.Caller(2)
+	pc, absPath, line, _ := runtime.Caller(3)
 	caller := runtime.FuncForPC(pc)
 	relPath := absPath[len(filePrefixFunc)+1:]
 	simpleCaller := caller.Name()[len("ezmq."):]
