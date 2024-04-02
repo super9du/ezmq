@@ -19,13 +19,12 @@ package ezmq
 import (
 	"context"
 	"log"
+	"testing"
 )
 
 var defaultURL = "amqp://guest:guest@localhost:5672/"
 
-func init() {
-	log.Println("init test...")
-
+func TestInitBase(t *testing.T) {
 	c, err := Dial(defaultURL, DefaultTimesRetry())
 	onErr(err)
 	defer c.Close()
